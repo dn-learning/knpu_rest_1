@@ -1,12 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: dnow
- * Date: 11.05.2018
- * Time: 14:08
- */
-
-require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 
 $client = new \GuzzleHttp\Client([
     'base_uri' => 'http://localhost:8000',
@@ -21,10 +14,9 @@ $data = array(
     'avatarNumber' => 5,
     'tagLine' => 'a test dev!'
 );
-$response = $client->post('/api/programmers', [
+$response = $client->post('/app_dev.php/api/programmers', [
     'body' => json_encode($data)
 ]);
 
 echo $response->getBody();
 echo "\n\n";
-
