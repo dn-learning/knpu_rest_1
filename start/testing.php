@@ -15,15 +15,25 @@ $data = array(
     'tagLine' => 'a test dev!'
 );
 // 1) Create a programmer resource
-$response = $client->post('/api/programmers', [
+$response = $client->post('/app_dev.php/api/programmers', [
     'body' => json_encode($data)
 ]);
 
-echo (string)$response->getBody();
+/** @var GuzzleHttp\Psr7\Response $response **/
+foreach ($response->getHeaders() as $name => $values) {
+    echo $name . ': ' . implode(', ', $values) . "\r\n";
+}
+echo $response->getBody()->getContents();
 echo "\n\n";
 
+$programmerUrl = $response->getHeader('Location');
+
 // 2) GET a programmer resource
-$response = $client->get('/api/programmers/'.$nickname);
+$response = $client->get($programmerUrl[0]);
+
 /** @var GuzzleHttp\Psr7\Response $response **/
-echo (string)$response->getBody();
+foreach ($response->getHeaders() as $name => $values) {
+    echo $name . ': ' . implode(', ', $values) . "\r\n";
+}
+echo $response->getBody()->getContents();
 echo "\n\n";
