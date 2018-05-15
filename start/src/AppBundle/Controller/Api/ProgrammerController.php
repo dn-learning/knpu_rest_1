@@ -1,20 +1,13 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: dnow
- * Date: 11.05.2018
- * Time: 14:07
- */
-
 namespace AppBundle\Controller\Api;
 
 use AppBundle\Controller\BaseController;
 use AppBundle\Entity\Programmer;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use AppBundle\Form\ProgrammerType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class ProgrammerController extends BaseController
 {
@@ -24,15 +17,37 @@ class ProgrammerController extends BaseController
      */
     public function newAction(Request $request)
     {
-        $data = $request->getContent();
+        $data = json_decode($request->getContent(), true);
+        $programmer = new Programmer();
 
-        $programmer = new Programmer($data['nickname'], $data['avatarNumber']);
-        $programmer->setTagLine($data['tagLine']);
+        $form = $this->createForm(new ProgrammerType(), $programmer);
+        $form->submit($data);
+
         $programmer->setUser($this->findUserByUsername('weaverryan'));
         $em = $this->getDoctrine()->getManager();
+
         $em->persist($programmer);
         $em->flush();
 
-        return new Response('It worked. Believe me - I\'m an API');
+        $response = new Response('It worked. Believe me - I\'m an API', 201);
+        $response->headers->set('Location', '/some/programmer/url');
+        return $response;
+    }
+    /**
+     * @Route("/api/programmers/{nickname}")
+     * @Method("GET")
+     */
+    public function showAction($nickname)
+    {
+        $programmer = $this->getDoctrine()
+           ->getRepository('AppBundle:Programmer')
+           ->findOneByNickname($nickname);
+        $data = array(
+           'nickname' => $programmer->getNickname(),
+           'avatarNumber' => $programmer->getAvatarNumber(),
+           'powerLevel' => $programmer->getPowerLevel(),
+           'tagLine' => $programmer->getTagLine(),
+       );
+        return new Response(json_encode($data), 200);
     }
 }
