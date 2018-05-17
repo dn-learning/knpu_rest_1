@@ -4,6 +4,7 @@ namespace AppBundle\Controller\Api;
 use AppBundle\Controller\BaseController;
 use AppBundle\Entity\Programmer;
 use AppBundle\Form\ProgrammerType;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,7 +30,8 @@ class ProgrammerController extends BaseController
         $em->persist($programmer);
         $em->flush();
 
-        $response = new Response('It worked. Believe me - I\'m an API', 201);
+        $data = $this->serializeProgrammer($programmer);
+        $response = new Response(json_encode($data), 201);
 
         $programmerUrl = $this->generateUrl(
             'api_programmers_show',
@@ -37,6 +39,7 @@ class ProgrammerController extends BaseController
         );
 
         $response->headers->set('Location', $programmerUrl);
+        $response->headers->set('Content-Type', 'application/json');
         return $response;
     }
 
@@ -57,15 +60,36 @@ class ProgrammerController extends BaseController
                ));
         }
 
-        $data = array(
-           'nickname' => $programmer->getNickname(),
-           'avatarNumber' => $programmer->getAvatarNumber(),
-           'powerLevel' => $programmer->getPowerLevel(),
-           'tagLine' => $programmer->getTagLine(),
-       );
+        $data = $this->serializeProgrammer($programmer);
 
-        $response = new Response(json_encode($data), 200);
-        $response->headers->set('Content-Type', 'application/json');
-        return $response;
+        return new JsonResponse($data, 200);
+    }
+
+    /**
+     * @Route("api/programmers")
+     * @Method("GET")
+     */
+    public function listAction()
+    {
+        $programmers = $this->getDoctrine()
+          ->getRepository('AppBundle:Programmer')
+          ->findAll();
+
+        $data = ['programmers' => []];
+        foreach ($programmers as $programmer) {
+            $data['programmers'][] = $this->serializeProgrammer($programmer);
+        }
+
+        return new JsonResponse($data, 200);
+    }
+
+    private function serializeProgrammer(Programmer $programmer)
+    {
+        return [
+         'nickname' => $programmer->getNickname(),
+         'avatarNumber' => $programmer->getAvatarNumber(),
+         'powerLevel' => $programmer->getPowerLevel(),
+         'tagLine' => $programmer->getTagLine(),
+     ];
     }
 }

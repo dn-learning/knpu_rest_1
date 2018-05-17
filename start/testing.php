@@ -37,3 +37,12 @@ foreach ($response->getHeaders() as $name => $values) {
 }
 echo $response->getBody()->getContents();
 echo "\n\n";
+
+// 3) GET a programmers collection
+$response = $client->get('/app_dev.php/api/programmers');
+/** @var GuzzleHttp\Psr7\Response $response **/
+foreach ($response->getHeaders() as $name => $values) {
+    echo $name . ': ' . implode(', ', $values) . "\r\n";
+}
+echo $response->getBody()->getContents();
+echo "\n\n";
