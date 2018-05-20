@@ -19,27 +19,25 @@ class ProgrammerController extends BaseController
     public function newAction(Request $request)
     {
         $data = json_decode($request->getContent(), true);
-        $programmer = new Programmer();
 
+        $programmer = new Programmer();
         $form = $this->createForm(new ProgrammerType(), $programmer);
         $form->submit($data);
 
         $programmer->setUser($this->findUserByUsername('weaverryan'));
-        $em = $this->getDoctrine()->getManager();
 
+        $em = $this->getDoctrine()->getManager();
         $em->persist($programmer);
         $em->flush();
 
         $data = $this->serializeProgrammer($programmer);
-        $response = new Response(json_encode($data), 201);
-
+        $response = new JsonResponse($data, 201);
         $programmerUrl = $this->generateUrl(
             'api_programmers_show',
             ['nickname' => $programmer->getNickname()]
         );
 
         $response->headers->set('Location', $programmerUrl);
-        $response->headers->set('Content-Type', 'application/json');
         return $response;
     }
 

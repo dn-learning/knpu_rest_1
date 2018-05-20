@@ -5,9 +5,16 @@ use AppBundle\Test\ApiTestCase;
 
 class ProgrammerControllerTest extends ApiTestCase
 {
+    protected function setUp()
+    {
+        parent::setUp();
+        $this->createUser('weaverryan');
+    }
+
+
     public function testPOST()
     {
-        $nickname = 'ObjectOrienter'.rand(0, 9999);
+        $nickname = 'ObjectOrienter';
         $data = array(
           'nickname' => $nickname,
           'avatarNumber' => 5,
@@ -18,12 +25,12 @@ class ProgrammerControllerTest extends ApiTestCase
           'body' => json_encode($data)
       ]);
 
-        /** @var \GuzzleHttp\Psr7\Response $response **/
-        foreach ($response->getHeaders() as $name => $values) {
-            echo $name . ': ' . implode(', ', $values) . "\r\n";
-        }
-        echo $response->getBody()->getContents();
-        echo "\n\n";
+        // /** @var \GuzzleHttp\Psr7\Response $response **/
+        // foreach ($response->getHeaders() as $name => $values) {
+        //     echo $name . ': ' . implode(', ', $values) . "\r\n";
+        // }
+        // echo $response->getBody()->getContents();
+        // echo "\n\n";
 
         $this->assertEquals(201, $response->getStatusCode());
         $this->assertTrue($response->hasHeader('Location'));
